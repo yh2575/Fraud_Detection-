@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
 from sklearn.ensemble import GradientBoostingClassifier
 import matplotlib.pyplot as plt
-from sklearn.ensemble.partial_dependence import plot_partial_dependence
+import data_pipeline 
 
 from data_pipeline import get_data, feature_engineering, get_tix, scale_data
 
