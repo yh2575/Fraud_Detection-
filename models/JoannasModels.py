@@ -3,34 +3,32 @@ import pandas as pd
 from sklearn.cross_validation import train_test_split, cross_val_score
 from sklearn import preprocessing
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import confusion_matrix, precision_score, recall_score
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
 from sklearn.ensemble import GradientBoostingClassifier
 import matplotlib.pyplot as plt
 from sklearn.ensemble.partial_dependence import plot_partial_dependence
 
 from data_pipeline import get_data, feature_engineering, get_tix, scale_data
 
-def random_forrest(scaler_train, scaler_test):
+# def random_forrest(scaler_train, scaler_test):
 
-    #random_forrest
-    rf =  RandomForestClassifier(n_estimators=3, oob_score=True)
-    rf.fit(scaler_train, y1_train)
-    scaler_test_predict = rf.predict(scaler_test)
+#     #random_forrest
+#     rf =  RandomForestClassifier(n_estimators=3, oob_score=True)
+#     rf.fit(scaler_train, y1_train)
+#     scaler_test_predict = rf.predict(scaler_test)
 
-    rs = recall_score(scaler_test_predict, y1_test)
-    #recall_score 0.861445783133
-    ps = precision_score(scaler_test_predict, y1_test) #87%
-    #precision_score 0.803370786517
-    print "recall_score", rs
-    print 'precision_score', ps
-    print " accuracy score:", rf.score(scaler_test, y1_test)
-    feature_importances = np.argsort(rf.feature_importances_)
-    print " top 10 features:", list(x_feature_train.columns[feature_importances[-1:-10:-1]])
-    return rf
-    #recall_score 0.909090909091
-    #precision_score 0.925925925926
-    #accuracy score: 0.986547085202
-    #['has_previous_payouts', 'num_tix_sold_by_event', u'num_payouts', u'approx_payout_date', 'num_tix_total', u'sale_duration2', u'body_length', u'num_order', 'email_com']
+#     rs = recall_score(scaler_test_predict, y1_test)
+#     ps = precision_score(scaler_test_predict, y1_test)
+#     print "recall_score", rs
+#     print 'precision_score', ps
+#     print " accuracy score:", rf.score(scaler_test, y1_test)
+#     feature_importances = np.argsort(rf.feature_importances_)
+#     print " top 10 features:", list(x_feature_train.columns[feature_importances[-1:-10:-1]])
+#     return rf
+#     #recall_score 0.909090909091
+#     #precision_score 0.925925925926
+#     #accuracy score: 0.986547085202
+#     #['has_previous_payouts', 'num_tix_sold_by_event', u'num_payouts', u'approx_payout_date', 'num_tix_total', u'sale_duration2', u'body_length', u'num_order', 'email_com']
 def random_forrest_class_balence(scaler_train, scaler_test):
 
     #random_forrest
@@ -39,13 +37,13 @@ def random_forrest_class_balence(scaler_train, scaler_test):
     scaler_test_predict = rf.predict(scaler_test)
 
     rs = recall_score(scaler_test_predict, y1_test)
-    #recall_score 0.861445783133
-    ps = precision_score(scaler_test_predict, y1_test) #87%
-    #precision_score 0.803370786517
+    ps = precision_score(scaler_test_predict, y1_test) 
+    f1 = f1_score(y1_test, scaler_test_predict) 
     print 'random forrest'
     print "recall_score", rs
     print 'precision_score', ps
     print " accuracy score:", rf.score(scaler_test, y1_test)
+    print "f1 score", f1
     feature_importances = np.argsort(rf.feature_importances_)
     print " top 10 features:", list(x_feature_train.columns[feature_importances[-1:-10:-1]])
     print "confusion_matrix:", confusion_matrix(scaler_test_predict, y1_test)
@@ -67,12 +65,12 @@ def gdbr(scaler_train, scaler_test):
     scaler_test_predict = gdbr.predict(scaler_test)
 
     rs = recall_score(scaler_test_predict, y1_test)
-    #recall_score 0.861445783133
-    ps = precision_score(scaler_test_predict, y1_test) #87%
-    #precision_score 0.803370786517
+    ps = precision_score(scaler_test_predict, y1_test) 
+    f1 = f1_score(y1_test, scaler_test_predict)   #F1 = 2 * (precision * recall) / (precision + recall)
     print 'gdbr'
     print "recall_score", rs
     print 'precision_score', ps
+    print "f1 score", f1 
     print " accuracy score:", gdbr.score(scaler_test, y1_test)
     print "confusion_matrix:", confusion_matrix(scaler_test_predict, y1_test)
     #recall_score 0.958333333333
@@ -117,8 +115,6 @@ if __name__ == '__main__':
     x_feature_test = feature_engineering(x1_test)[columns]
 
     scaler_train, scaler_test = scale_data(x_feature_train, x_feature_test)
-
-    # rf = random_forrest(scaler_train, scaler_test)
 
     rf2 = random_forrest_class_balence(scaler_train, scaler_test)
     gdbr = gdbr(scaler_train, scaler_test)
