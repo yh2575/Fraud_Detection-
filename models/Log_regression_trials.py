@@ -11,7 +11,7 @@ from sklearn.cross_validation import KFold
 from statsmodels.api import Logit
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
-from fraud_utilities import fraudColumn_and_split, replace_delivery_nans
+from data_pipeline import get_data, replace_delivery_nans
 
 from smote import smote
 
