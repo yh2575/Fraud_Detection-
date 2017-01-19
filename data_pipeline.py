@@ -86,6 +86,14 @@ def feature_engineering(df):
 	df['high_fraud_country'] = df.country.apply(lambda x: x in high_fraud_countries).astype(int)
 	return df
 
+def scale_data(x_train, x_test):
+    scaler = preprocessing.StandardScaler()
+    scaler.fit(x_train)
+    scaler_train = scaler.transform(x_train)
+    scaler_test = scaler.transform(x_test)
+
+    return scaler_train, scaler_test
+
 def create_X_and_y(df):
 	df = feature_engineering(df)
 	y = df['fraud']
