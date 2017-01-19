@@ -1,13 +1,12 @@
 import numpy as np
 import pandas as pd
 from sklearn.cross_validation import train_test_split
-from sklearn.svm import LinearSVC
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn import preprocessing
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
 from sklearn.metrics import confusion_matrix, precision_score, recall_score
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingClassifier
+import matplotlib.pyplot as plt
+
 
 
 def get_data():
@@ -43,56 +42,146 @@ def get_data():
     return X_train, X_test, y_train, y_test
 
 
-def random_forrest():
-    X1_train, x1_test, y1_train, y1_test = train_test_split(X_train, y_train, test_size=.2)
+def feature_engineering(df):
 
-    columns = ['approx_payout_date', 'gts', 'previous_payouts', 'sale_duration2', 'num_order', 'body_length', 'venue_country!=country']
+	# are there any previous payouts?
 
-    #for trainning feature transformation
-    X1_train['gts']= X1_train['gts'].apply(lambda x: 1 if x==0 else 0)
-    X1_train['previous_payouts'] = X1_train['previous_payouts'].apply(lambda x: 1 if len(x)==0 else 0)
-    X1_train['venue_country!=country']= (X1_train['country']!=X1_train['venue_country']).astype(int)
-    X1_train_select = X1_train[columns]
+	df['has_previous_payouts'] = df.previous_payouts.apply(lambda x: int(x == []))
+
+	# gts values -- binned
+
+	df['gts_is_0'] = df.gts.apply(lambda x: int(x == 0))
+	df['gts_less_10'] = df.gts.apply(lambda x: int(0 < x < 10))
+	df['gts_less_25'] = df.gts.apply(lambda x: int(10 < x < 25))
+
+	# user country != venue country
+
+	country_mismatch = df.venue_country != df.country
+	df['venue_outside_user_country'] = country_mismatch.astype(int)
+
+	#country dummies
+
+	#num of tix for sale (from ticket types)
+	df['num_tix_total'] = df.ticket_types.apply(get_tix, args=("quantity_total",))
+	# num of tix sold (from ticket types)
+	df['num_tix_sold_by_event'] = df.ticket_types.apply(get_tix, args=("quantity_sold",))
+	# previous tix sold (from previous_payouts)
+	df['num_payouts'] = df.previous_payouts.apply(lambda x: len(x))
+
+	#emails:
+	df['email_gmail'] = (df.email_domain == "gmail.com").astype(int)
+	df['email_yahoo'] = (df.email_domain == "yahoo.com").astype(int)
+	df['email_hotmail'] = (df.email_domain == "hotmail.com").astype(int)
+	df['email_aol'] = (df.email_domain == "aol.com").astype(int)
+	df['email_com'] = (df.email_domain.apply(lambda x: x[-3:]) == "com").astype(int)
+	df['email_org'] = (df.email_domain.apply(lambda x: x[-3:]) == "org").astype(int)
+	df['email_edu'] = (df.email_domain.apply(lambda x: x[-3:]) == "edu").astype(int)
+
+	return df
+
+
+    # ['approx_payout_date', 'gts', 'previous_payouts', 'sale_duration2', 'num_order', 'body_length', 'venue_country!=country']
+def get_tix(ticket_types, value):
+	total = 0
+	for ticket in ticket_types:
+		total += ticket[value]
+	return total
+
+def scale_data(x_train, x_test):
     scaler = preprocessing.StandardScaler()
-    scaler.fit(X1_train_select)
-    scaler_train = scaler.transform(X1_train_select)
+    scaler.fit(x_train)
+    scaler_train = scaler.transform(x_train)
+    scaler_test = scaler.transform(x_test)
 
+    return scaler_train, scaler_test
 
-    #for test feature transformation
-    x1_test['gts']= x1_test['gts'].apply(lambda x: 1 if x==0 else 0)
-    x1_test['previous_payouts'] = x1_test['previous_payouts'].apply(lambda x: 1 if len(x)==0 else 0)
-    x1_test['venue_country!=country']= (x1_test['country']!=x1_test['venue_country']).astype(int)
-    x1_test_select = x1_test[columns]
-
-
-    scaler_test = scaler.transform(x1_test_select)
-
+def random_forrest(scaler_train, scaler_test):
 
     #random_forrest
     rf =  RandomForestClassifier(n_estimators=3, oob_score=True)
     rf.fit(scaler_train, y1_train)
-    scalar_test_predict = rf.predict(scaler_test)
+    scaler_test_predict = rf.predict(scaler_test)
 
-    import pdb; pdb.set_trace()
-
-    rs = recall_score(scalar_test_predict, y1_test)
+    rs = recall_score(scaler_test_predict, y1_test)
     #recall_score 0.861445783133
-
-    ps = precision_score(scalar_test_predict, y1_test) #87%
+    ps = precision_score(scaler_test_predict, y1_test) #87%
     #precision_score 0.803370786517
     print "recall_score", rs
     print 'precision_score', ps
-
     print " accuracy score:", rf.score(scaler_test, y1_test)
     feature_importances = np.argsort(rf.feature_importances_)
-    print " top five features:", list(X1_train_select.columns[feature_importances[-1:-6:-1]])
+    print " top 10 features:", list(x_feature_train.columns[feature_importances[-1:-10:-1]])
 
-    #accuracy score: 0.971101145989
+    #recall_score 0.909090909091
+    #precision_score 0.925925925926
+    #accuracy score: 0.986547085202
+    #['has_previous_payouts', 'num_tix_sold_by_event', u'num_payouts', u'approx_payout_date', 'num_tix_total', u'sale_duration2', u'body_length', u'num_order', 'email_com']
+def random_forrest_class_balence(scaler_train, scaler_test):
 
-    #[u'previous_payouts', u'sale_duration2', u'num_order', u'body_length', u'approx_payout_date']
+    #random_forrest
+    rf =  RandomForestClassifier(n_estimators=3, oob_score=True, class_weight={1:9})
+    rf.fit(scaler_train, y1_train)
+    scaler_test_predict = rf.predict(scaler_test)
 
+    rs = recall_score(scaler_test_predict, y1_test)
+    #recall_score 0.861445783133
+    ps = precision_score(scaler_test_predict, y1_test) #87%
+    #precision_score 0.803370786517
+    print "recall_score", rs
+    print 'precision_score', ps
+    print " accuracy score:", rf.score(scaler_test, y1_test)
+    feature_importances = np.argsort(rf.feature_importances_)
+    print " top 10 features:", list(x_feature_train.columns[feature_importances[-1:-10:-1]])
+
+    #recall_score 0.944134078212
+    #precision_score 0.871134020619
+    #accuracy score: 0.982561036373
+    #top 10 features: ['has_previous_payouts', u'sale_duration2', 'num_tix_sold_by_event', u'body_length', u'num_payouts', u'approx_payout_date', 'venue_outside_user_country', u'num_order', 'num_tix_total']
+def gdbr(scaler_train, scaler_test):
+    gdbr = GradientBoostingClassifier(learning_rate=0.03,
+                                 n_estimators=150, random_state=1)
+    # weights = y1_train
+    # weights.loc[weights==1] = 20
+    # weights.loc[weights==0] = 80
+
+    gdbr.fit(scaler_train, y1_train, sample_weight=weights)
+    scaler_test_predict = gdbr.predict(scaler_test)
+
+    rs = recall_score(scaler_test_predict, y1_test)
+    #recall_score 0.861445783133
+    ps = precision_score(scaler_test_predict, y1_test) #87%
+    #precision_score 0.803370786517
+    print "recall_score", rs
+    print 'precision_score', ps
+    print " accuracy score:", gdbr.score(scaler_test, y1_test)
+    #recall_score 0.958333333333
+    #precision_score 0.879781420765
+    #accuracy score: 0.985550572995
+    return gdbr
+
+
+def plot_feature_importance():
+    indices = np.argsort(gdbr.feature_importances_)
+    # plot as bar chart
+    figure = plt.figure(figsize=(10,7))
+    plt.barh(np.arange(len(columns)), gdbr.feature_importances_[indices],
+             align='center', alpha=.5)
+    plt.yticks(np.arange(len(columns)), np.array(columns)[indices], fontsize=14)
+    plt.xticks(fontsize=14)
+    _ = plt.xlabel('Relative importance', fontsize=18)
+    plt.show()
 
 
 if __name__ == '__main__':
     X_train, X_test, y_train, y_test = get_data()
-    random_forrest()
+    X1_train, x1_test, y1_train, y1_test = train_test_split(X_train, y_train, test_size=.2)
+    # columns = ['approx_payout_date', 'gts', 'previous_payouts', 'sale_duration2', 'num_order', 'body_length', 'venue_country!=country']
+    columns = ['has_previous_payouts', 'gts_is_0', 'gts_less_10', 'gts_less_25', 'venue_outside_user_country', 'num_tix_total', 'num_tix_sold_by_event', 'num_payouts', 'email_gmail', 'email_yahoo', 'email_hotmail','email_aol','email_com', 'email_org', 'email_edu','approx_payout_date', 'sale_duration2', 'num_order', 'body_length']
+
+    x_feature_train = feature_engineering(X1_train)[columns]
+    x_feature_test = feature_engineering(x1_test)[columns]
+
+    scaler_train, scaler_test = scale_data(x_feature_train, x_feature_test)
+    # random_forrest_class_balence(scaler_train, scaler_test)
+    gdbr = gdbr(scaler_train, scaler_test)
+    plot_feature_importance()
