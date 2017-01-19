@@ -16,7 +16,6 @@ def random_forrest_class_balence(scaler_train, scaler_test):
     rf =  RandomForestClassifier(n_estimators=3, oob_score=True, class_weight={1:9})
     rf.fit(scaler_train, y1_train)
     scaler_test_predict = rf.predict(scaler_test)
-
     rs = recall_score(scaler_test_predict, y1_test)
     ps = precision_score(scaler_test_predict, y1_test)
     f1 = f1_score(y1_test, scaler_test_predict)
