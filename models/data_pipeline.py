@@ -4,36 +4,36 @@ import numpy as np
 from sklearn.cross_validation import train_test_split
 
 def get_data():
-    df = pd.read_json('data/data.json')
+	df = pd.read_json('data/data.json')
 
-    #Create binary fraud column
-    df['fraud'] = 0
-    df.loc[df['acct_type'] == 'fraudster_event', 'fraud'] = 1
-    df.loc[df['acct_type'] == 'fraudster', 'fraud'] = 1
-    df.loc[df['acct_type'] == 'fraudster_att', 'fraud'] = 1
-    #Check
-    # print "Should be 1293, it is... "+ sum(df['fraud'])
+	#Create binary fraud column
+	df['fraud'] = 0
+	df.loc[df['acct_type'] == 'fraudster_event', 'fraud'] = 1
+	df.loc[df['acct_type'] == 'fraudster', 'fraud'] = 1
+	df.loc[df['acct_type'] == 'fraudster_att', 'fraud'] = 1
+	#Check
+	# print "Should be 1293, it is... "+ sum(df['fraud'])
 
-    #Train, test, split
-    y = df['fraud']
-    X = df[[         u'approx_payout_date',        u'body_length',
-                     u'channels',            u'country',           u'currency',
-              u'delivery_method',        u'description',       u'email_domain',
-                u'event_created',          u'event_end',    u'event_published',
-                  u'event_start',       u'fb_published',                u'gts',
-                u'has_analytics',         u'has_header',           u'has_logo',
-                       u'listed',               u'name',        u'name_length',
-                    u'num_order',        u'num_payouts',          u'object_id',
-                     u'org_desc',       u'org_facebook',           u'org_name',
-                  u'org_twitter',         u'payee_name',        u'payout_type',
-             u'previous_payouts',      u'sale_duration',     u'sale_duration2',
-                     u'show_map',       u'ticket_types',           u'user_age',
-                 u'user_created',          u'user_type',      u'venue_address',
-                u'venue_country',     u'venue_latitude',    u'venue_longitude',
-                   u'venue_name',        u'venue_state',              ]]
+	#Train, test, split
+	y = df['fraud']
+	X = df[[         u'approx_payout_date',        u'body_length',
+		     u'channels',            u'country',           u'currency',
+	      u'delivery_method',        u'description',       u'email_domain',
+		u'event_created',          u'event_end',    u'event_published',
+		  u'event_start',       u'fb_published',                u'gts',
+		u'has_analytics',         u'has_header',           u'has_logo',
+		       u'listed',               u'name',        u'name_length',
+		    u'num_order',        u'num_payouts',          u'object_id',
+		     u'org_desc',       u'org_facebook',           u'org_name',
+		  u'org_twitter',         u'payee_name',        u'payout_type',
+	     u'previous_payouts',      u'sale_duration',     u'sale_duration2',
+		     u'show_map',       u'ticket_types',           u'user_age',
+		 u'user_created',          u'user_type',      u'venue_address',
+		u'venue_country',     u'venue_latitude',    u'venue_longitude',
+		   u'venue_name',        u'venue_state',              ]]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.3)
-    return X_train, X_test, y_train, y_test
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.3)
+	return X_train, X_test, y_train, y_test
 
 
 def feature_engineering(df):
@@ -87,12 +87,12 @@ def feature_engineering(df):
 	return df
 
 def scale_data(x_train, x_test):
-    scaler = preprocessing.StandardScaler()
-    scaler.fit(x_train)
-    scaler_train = scaler.transform(x_train)
-    scaler_test = scaler.transform(x_test)
+	scaler = preprocessing.StandardScaler()
+	scaler.fit(x_train)
+	scaler_train = scaler.transform(x_train)
+	scaler_test = scaler.transform(x_test)
 
-    return scaler_train, scaler_test
+	return scaler_train, scaler_test
 
 def create_X_and_y(df):
 	df = feature_engineering(df)
@@ -103,6 +103,16 @@ def create_X_and_y(df):
 def test_train_split(X, y)
 	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.3)
 	return X_train, X_test, y_train, y_test
+
+def replace_delivery_nans(df): 
+	df['delivery_method'].ix[df['delivery_method'].isnull()] = 10.0
+	return df
+
+def get_tix(ticket_types, value):
+	total = 0
+	for ticket in ticket_types:
+		total += ticket[value]
+	return total
 
 def smote(X, y, target, k=None):
     """
@@ -148,8 +158,3 @@ def smote(X, y, target, k=None):
 
     return X_smoted, y_smoted
 
-def get_tix(ticket_types, value):
-	total = 0
-	for ticket in ticket_types:
-		total += ticket[value]
-	return total
