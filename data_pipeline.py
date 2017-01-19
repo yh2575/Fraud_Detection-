@@ -52,6 +52,16 @@ def feature_engineering(df):
 	df['high_fraud_country'] = df.country.apply(lambda x: x in high_fraud_countries).astype(int)
 	return df
 
+def create_X_and_y(df):
+	df = feature_engineering(df)
+	y = df['fraud']
+	X = df.drop('fraud')
+	return X, y
+
+def test_train_split(X, y)
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.3)
+	return X_train, X_test, y_train, y_test
+
 def get_tix(ticket_types, value):
 	total = 0
 	for ticket in ticket_types:
