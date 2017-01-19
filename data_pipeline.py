@@ -1,6 +1,8 @@
 
 import pandas as pd
 import numpy as np
+from sklearn.cross_validation import train_test_split
+
 
 def feature_engineering(df):
 	# Make a single binary column for fraud
@@ -61,6 +63,50 @@ def create_X_and_y(df):
 def test_train_split(X, y)
 	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.3)
 	return X_train, X_test, y_train, y_test
+
+def smote(X, y, target, k=None):
+    """
+    INPUT:
+    X, y - your data
+    target - the percentage of positive class 
+             observations in the output
+    k - k in k nearest neighbors
+    OUTPUT:
+    X_oversampled, y_oversampled - oversampled data
+    `smote` generates new observations from the positive (minority) class:
+    For details, see: https://www.jair.org/media/953/live-953-2037-jair.pdf
+    """
+    if target <= sum(y)/float(len(y)):
+        return X, y
+    if k is None:
+        k = len(X)**.5
+    # fit kNN model
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X[y==1], y[y==1])
+    neighbors = knn.kneighbors()[0]
+    positive_observations = X[y==1]
+    # determine how many new positive observations to generate
+    positive_count = sum(y)
+    negative_count = len(y) - positive_count
+    target_positive_count = target*negative_count / (1. - target)
+    target_positive_count = int(round(target_positive_count))
+    number_of_new_observations = target_positive_count - positive_count
+    # generate synthetic observations
+    synthetic_observations = np.empty((0, X.shape[1]))
+    while len(synthetic_observations) < number_of_new_observations:
+        obs_index = np.random.randint(len(positive_observations))
+        observation = positive_observations[obs_index]
+        neighbor_index = np.random.choice(neighbors[obs_index])
+        neighbor = X[neighbor_index]
+        obs_weights = np.random.random(len(neighbor))
+        neighbor_weights = 1 - obs_weights
+        new_observation = obs_weights*observation + neighbor_weights*neighbor
+        synthetic_observations = np.vstack((synthetic_observations, new_observation))
+
+    X_smoted = np.vstack((X, synthetic_observations))
+    y_smoted = np.concatenate((y, [1]*len(synthetic_observations)))
+
+    return X_smoted, y_smoted
 
 def get_tix(ticket_types, value):
 	total = 0
