@@ -11,8 +11,8 @@ Fraudulent activity on our client's online marketplace degrades customer trust a
 
 ## Deliverables
 
-Working model to accurately predict fraudulent activity
-Web-based application for our client to assess fraudulent activity and level of risk associated with transactions
+Working model to accurately predict fraudulent activity.
+Web-based application for our client to assess fraudulent activity and level of risk associated with transactions.
 
 ## Tools
 ### Python, HTML, CSS
