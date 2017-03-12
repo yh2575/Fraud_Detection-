@@ -20,7 +20,7 @@ Flask<br>
 Random Forrest Classifier, Gradient Boosting Classifier, Logistic Regression Classifier 
 
 ## Result
-### Random Forrest classifier 
+### Random Forrest Classifier 
 recall_score 0.94<br>
 precision_score 0.87<br>
 accuracy score: 0.98<br>
