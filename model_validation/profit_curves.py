@@ -3,7 +3,7 @@ import numpy as np
 
 # confusion matrix:
 
-def conf_matrix(y_true,y_predict):
+def confusion_matrix(y_true,y_predict):
     y_true = np.array(y_true)
     y_predict = np.array(y_predict)    
     tp =  sum(y_predict & y_true)   
