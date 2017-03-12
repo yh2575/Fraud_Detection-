@@ -11,22 +11,22 @@ Fraudulent activity on our client's online marketplace degrades customer trust a
 
 ## Deliverables
 
-Working model to accurately predict fraudulent activity.
+Working model to accurately predict fraudulent activity.<br>
 Web-based application for our client to assess fraudulent activity and level of risk associated with transactions.
 
 ## Tools
-Python, HTML, CSS
-Flask
+Python, HTML, CSS<br>
+Flask<br>
 Random Forrest Classifier, Gradient Boosting Classifier, Logistic Regression Classifier 
 
 ## Result
 ### Random Forrest classifier 
-recall_score 0.94
-precision_score 0.87
-accuracy score: 0.98
+recall_score 0.94<br>
+precision_score 0.87<br>
+accuracy score: 0.98<br>
    
 ### Gradient Boosting Classifier
-recall_score 0.96
-precision_score 0.88
+recall_score 0.96<br>
+precision_score 0.88<br>
 accuracy score: 0.99
    
