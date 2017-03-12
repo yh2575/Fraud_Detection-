@@ -20,13 +20,13 @@ Web-based application for our client to assess fraudulent activity and level of 
 ### Random Forrest Classifier, Gradient Boosting Classifier, Logistic Regression Classifier 
 
 ## Result
-   ## Random Forrest classifier 
-   recall_score 0.944134078212
-   precision_score 0.871134020619
-   accuracy score: 0.982561036373
+### Random Forrest classifier 
+recall_score 0.944134078212
+precision_score 0.871134020619
+accuracy score: 0.982561036373
    
-   ## Gradient Boosting Classifier
-   recall_score 0.958333333333
-   precision_score 0.879781420765
-   accuracy score: 0.985550572995
+### Gradient Boosting Classifier
+recall_score 0.958333333333
+precision_score 0.879781420765
+accuracy score: 0.985550572995
    
