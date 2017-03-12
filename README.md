@@ -21,12 +21,12 @@ Random Forrest Classifier, Gradient Boosting Classifier, Logistic Regression Cla
 
 ## Result
 ### Random Forrest classifier 
-recall_score 0.944134078212
-precision_score 0.871134020619
-accuracy score: 0.982561036373
+recall_score 0.94
+precision_score 0.87
+accuracy score: 0.98
    
 ### Gradient Boosting Classifier
-recall_score 0.958333333333
-precision_score 0.879781420765
-accuracy score: 0.985550572995
+recall_score 0.96
+precision_score 0.88
+accuracy score: 0.99
    
