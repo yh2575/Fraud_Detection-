@@ -15,9 +15,9 @@ Working model to accurately predict fraudulent activity.
 Web-based application for our client to assess fraudulent activity and level of risk associated with transactions.
 
 ## Tools
-### Python, HTML, CSS
-### Flask
-### Random Forrest Classifier, Gradient Boosting Classifier, Logistic Regression Classifier 
+Python, HTML, CSS
+Flask
+Random Forrest Classifier, Gradient Boosting Classifier, Logistic Regression Classifier 
 
 ## Result
 ### Random Forrest classifier 
